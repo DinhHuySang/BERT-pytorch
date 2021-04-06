@@ -1,0 +1,1 @@
+python3 bert_pytorch/dataset/vocab.py -c "/media/leo/967C7A9E7C7A7937/linux/data_for_Language_Model/backup/k" -o "/media/leo/967C7A9E7C7A7937/linux/data_for_Language_Model/backup/k/vocab.pt" -s 35000  
