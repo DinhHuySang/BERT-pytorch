@@ -1,6 +1,10 @@
 import pickle
-import tqdm
+from tqdm import tqdm
+import os
 from collections import Counter
+import logging
+logger = logging.getLogger(__name__)
+# logger.setLevel(lvl=logging.INFO)
 
 
 class TorchVocab(object):
@@ -13,7 +17,7 @@ class TorchVocab(object):
         itos: A list of token strings indexed by their numerical identifiers.
     """
 
-    def __init__(self, counter, max_size=None, min_freq=1, specials=['<pad>', '<oov>'],
+    def __init__(self, counter, max_size=None, min_freq=1, specials=['<PAD>', '<OOV>'],
                  vectors=None, unk_init=None, vectors_cache=None):
         """Create a Vocab object from a collections.Counter.
         Arguments:
@@ -96,7 +100,7 @@ class Vocab(TorchVocab):
         self.eos_index = 2
         self.sos_index = 3
         self.mask_index = 4
-        super().__init__(counter, specials=["<pad>", "<unk>", "<eos>", "<sos>", "<mask>"],
+        super().__init__(counter, specials=["<PAD>", "<UNK>", "<EOS>", "<SOS>", "<MASK>"],
                          max_size=max_size, min_freq=min_freq)
 
     def to_seq(self, sentece, seq_len, with_eos=False, with_sos=False) -> list:
@@ -120,7 +124,7 @@ class WordVocab(Vocab):
     def __init__(self, texts, max_size=None, min_freq=1):
         print("Building Vocab")
         counter = Counter()
-        for line in tqdm.tqdm(texts):
+        for line in tqdm(texts):
             if isinstance(line, list):
                 words = line
             else:
@@ -178,8 +182,27 @@ def build():
     parser.add_argument("-m", "--min_freq", type=int, default=1)
     args = parser.parse_args()
 
-    with open(args.corpus_path, "r", encoding=args.encoding) as f:
-        vocab = WordVocab(f, max_size=args.vocab_size, min_freq=args.min_freq)
+    if os.path.isfile(args.corpus_path):
+        logger.info(f"is file")
+        with open(args.corpus_path, "r", encoding=args.encoding) as f:
+            vocab = WordVocab(f, max_size=args.vocab_size, min_freq=args.min_freq)
+    elif os.path.isdir(args.corpus_path):
+        logger.info(f"is dir")
+        texts = []
+        for index, corpus in tqdm(enumerate(os.listdir(args.corpus_path))):
+            with open(os.path.join(args.corpus_path,corpus), "r", encoding=args.encoding) as f:
+                texts += f.readlines()
+                # print(type(f))
+                break
+        vocab = WordVocab(texts, max_size=args.vocab_size, min_freq=args.min_freq)
+        pass
+    else:
+        logger.error(f"mother fucking, not file, not dir")
+
 
     print("VOCAB SIZE:", len(vocab))
     vocab.save_vocab(args.output_path)
+
+
+if __name__ == "__main__":
+     build()
