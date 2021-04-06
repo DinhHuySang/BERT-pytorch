@@ -191,9 +191,9 @@ def build():
         print("get corpus")
         texts = []
         for index, corpus in tqdm(enumerate(os.listdir(args.corpus_path))):
-            print("getting {}".format(corpus))
+            print("getting{}".format(corpus))
             with open(os.path.join(args.corpus_path,corpus), "r", encoding=args.encoding) as f:
-                texts += f.readlines()
+                texts += f
                 # print(type(f))
         vocab = WordVocab(texts, max_size=args.vocab_size, min_freq=args.min_freq)
         pass
