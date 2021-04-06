@@ -188,12 +188,13 @@ def build():
             vocab = WordVocab(f, max_size=args.vocab_size, min_freq=args.min_freq)
     elif os.path.isdir(args.corpus_path):
         logger.info(f"is dir")
+        print("get corpus")
         texts = []
         for index, corpus in tqdm(enumerate(os.listdir(args.corpus_path))):
+            print("getting {}".format(corpus))
             with open(os.path.join(args.corpus_path,corpus), "r", encoding=args.encoding) as f:
                 texts += f.readlines()
                 # print(type(f))
-                break
         vocab = WordVocab(texts, max_size=args.vocab_size, min_freq=args.min_freq)
         pass
     else:
